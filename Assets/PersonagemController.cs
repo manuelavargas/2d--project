@@ -15,7 +15,7 @@ public class PersonagemController : MonoBehaviour
     private Animator anim; 
     private GroundCheck groundCheckScript;    
 
-    // NOVAS VARIÁVEIS PARA O TEMPO PARADO
+    // Variáveis para o tempo inativo (Ripping Pants)
     private float tempoParado = 0f;
     private const float TEMPO_PARA_ANIMAÇÃO = 5f;
 
@@ -23,6 +23,9 @@ public class PersonagemController : MonoBehaviour
     {
         points += x;
         pontuacao.text = "Pontuação: " + points.ToString();
+        
+        // Dispara o Trigger da rede de caçar águas-vivas
+        anim.SetTrigger("olReliable");
     }
 
     void Start()
@@ -49,7 +52,8 @@ public class PersonagemController : MonoBehaviour
         if (moveHorizontal != 0)
         {
             anim.SetBool("isWalking", true);
-            // Se ele se mexer, o cronômetro zera e desativa a animação especial
+            
+            // Se mover, reseta o tempo e cancela a calça rasgada
             tempoParado = 0f;
             anim.SetBool("isRippingPants", false);
         }
@@ -57,12 +61,11 @@ public class PersonagemController : MonoBehaviour
         {
             anim.SetBool("isWalking", false);
 
-            // Se ele estiver no chão e parado, o cronômetro começa a contar
+            // Contador de inatividade (só conta se estiver no chão e parado)
             if (groundCheckScript.isOnGround)
             {
                 tempoParado += Time.deltaTime;
 
-                // Se o tempo parado passar de 5 segundos, ativa o gatilho
                 if (tempoParado >= TEMPO_PARA_ANIMAÇÃO)
                 {
                     anim.SetBool("isRippingPants", true);
@@ -70,18 +73,18 @@ public class PersonagemController : MonoBehaviour
             }
         }
 
-        // Se pular, também cancela a animação especial imediatamente
+        // Se pular, cancela a animação de rasgar as calças na hora
         if (!groundCheckScript.isOnGround)
         {
             tempoParado = 0f;
             anim.SetBool("isRippingPants", false);
         }
 
-        // Avisa se está no chão e passa a velocidade
+        // Envia as informações de física para o Animator (Pulo)
         anim.SetBool("isGrounded", groundCheckScript.isOnGround);
         anim.SetFloat("vVelocity", rb2d.velocity.y);
 
-        // CÓDIGO PARA VIRAR O BOB ESPONJA
+        // CÓDIGO PARA VIRAR O SPRITE DO BOB ESPONJA
         if (moveHorizontal > 0)
         {
             this.GetComponent<SpriteRenderer>().flipX = false;
